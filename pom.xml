@@ -16,7 +16,8 @@
 
     <dependencies>
 
-        <!-- MariaDB JDBC Driver -->
+        <!-- MariaDB JDBC Driver asdfghjklñ´ç
+        -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
