@@ -43,4 +43,42 @@ public class ProductoDao {
 
         return -1;
     }
+
+    public Producto findById(int id) throws SQLException {
+        String sql = "SELECT * FROM productos WHERE id = ?";
+
+        try (Connection conn = Database.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapProducto(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    private Producto mapProducto(ResultSet rs) throws SQLException {
+        Producto producto = new Producto();
+        producto.setId(rs.getInt("id"));
+        producto.setNombre(rs.getString("nombre"));
+        producto.setDescripcion(rs.getString("descripcion"));
+        producto.setCategoria(rs.getString("categoria"));
+        producto.setPrecio(rs.getDouble("precio"));
+        producto.setStock(rs.getInt("stock"));
+        producto.setStock_min(rs.getInt("stock_min"));
+        producto.setEmail_aviso(rs.getString("email_aviso"));
+
+        Timestamp ts = rs.getTimestamp("fecha_creacion");
+        if (ts != null) {
+            producto.setFecha_creacion(ts.toLocalDateTime());
+        }
+
+    producto.setActivo(rs.getBoolean("activo"));
+    return producto;
+    }
+
 }
