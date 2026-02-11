@@ -5,6 +5,9 @@ import ecommerce.models.Producto;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ProductoDao {
 
@@ -44,6 +47,22 @@ public class ProductoDao {
         return -1;
     }
 
+    public List<Producto> getAll() throws SQLException {
+        List<Producto> productos = new ArrayList<>();
+        String sql = "SELECT * FROM productos WHERE activo = 1 ORDER BY fecha_creacion DESC";
+
+        try (Connection conn = Database.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                productos.add(mapProducto(rs));
+            }
+
+        }
+        return productos;
+    }
+
     public Producto findById(int id) throws SQLException {
         String sql = "SELECT * FROM productos WHERE id = ?";
 
@@ -59,6 +78,35 @@ public class ProductoDao {
             }
         }
         return null;
+    }
+
+    public boolean updateStock(int productoId, int newStock) throws SQLException {
+        String sql = "UPDATE productos SET stock = ? WHERE id = ?";
+
+        try (Connection conn = Database.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, newStock);
+            stmt.setInt(2, productoId);
+
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+        }
+    }
+
+    public List<Producto> findLowStock() throws SQLException {
+
+        List<Producto> low = new ArrayList<>();
+        String sql = "SELECT * FROM productos WHERE activo = 1 AND stock <= stock_min ORDER BY stock ASC";
+
+        try (Connection conn = Database.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                    low.add(mapProducto(rs));
+            }
+        }
+        return low;
     }
 
     private Producto mapProducto(ResultSet rs) throws SQLException {
