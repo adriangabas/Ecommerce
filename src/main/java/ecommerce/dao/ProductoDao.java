@@ -26,7 +26,7 @@ public class ProductoDao {
             stmt.setDouble(4, producto.getPrecio());
             stmt.setInt(5, producto.getStock());
             stmt.setInt(6, producto.getStock_min());
-            stmt.setString(7, producto.getEmail_aviso());
+            stmt.setString(7, producto.getEmailAviso());
 
             LocalDateTime fr = (producto.getFecha_creacion() != null)
                     ? producto.getFecha_creacion()
@@ -118,7 +118,7 @@ public class ProductoDao {
         producto.setPrecio(rs.getDouble("precio"));
         producto.setStock(rs.getInt("stock"));
         producto.setStock_min(rs.getInt("stock_min"));
-        producto.setEmail_aviso(rs.getString("email_aviso"));
+        producto.setEmailAviso(rs.getString("email_aviso"));
 
         Timestamp ts = rs.getTimestamp("fecha_creacion");
         if (ts != null) {

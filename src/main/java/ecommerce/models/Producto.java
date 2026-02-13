@@ -73,11 +73,11 @@ public class Producto {
     public void setStock_min(int stock_min) {
         this.stock_min = stock_min;
     }
-    public String getEmail_aviso() {
+    public String getEmailAviso() {
         return emailAviso;
     }
-    public void setEmail_aviso(String email_aviso) {
-        this.emailAviso = email_aviso;
+    public void setEmailAviso(String emailAviso) {
+        this.emailAviso = emailAviso;
     }
     public LocalDateTime getFecha_creacion() {
         return fecha_creacion;
