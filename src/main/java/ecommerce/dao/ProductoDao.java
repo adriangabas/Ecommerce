@@ -63,12 +63,14 @@ public class ProductoDao {
         return productos;
     }
 
-    public Producto findById(int id) throws SQLException {
-        String sql = "SELECT * FROM productos WHERE id = ?";
+    // =======================
+// 🔥 MÉTODOS PARA TRANSACCIONES (usa la misma Connection)
+// =======================
 
-        try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public Producto getById(int id, Connection conn) throws SQLException {
+        String sql = "SELECT * FROM productos WHERE id = ? AND activo = 1";
 
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -77,21 +79,21 @@ public class ProductoDao {
                 }
             }
         }
+
         return null;
     }
 
-    public boolean updateStock(int productoId, int newStock) throws SQLException {
+    public boolean updateStock(int productoId, int newStock, Connection conn) throws SQLException {
         String sql = "UPDATE productos SET stock = ? WHERE id = ?";
 
-        try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, newStock);
             stmt.setInt(2, productoId);
 
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+            return stmt.executeUpdate() > 0;
         }
     }
+
 
     public List<Producto> findLowStock() throws SQLException {
 
@@ -108,6 +110,8 @@ public class ProductoDao {
         }
         return low;
     }
+
+
 
     private Producto mapProducto(ResultSet rs) throws SQLException {
         Producto producto = new Producto();
