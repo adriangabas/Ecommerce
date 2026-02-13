@@ -76,7 +76,7 @@ public class Producto {
     public String getEmailAviso() {
         return emailAviso;
     }
-    public void setEmailAviso(String email_aviso) {
+    public void setEmailAviso(String emailAviso) {
         this.emailAviso = emailAviso;
     }
     public LocalDateTime getFecha_creacion() {
