@@ -63,6 +63,25 @@ public class ProductoDao {
         return productos;
     }
 
+    public Producto getById(int id) throws SQLException {
+        String sql = "SELECT * FROM productos WHERE id = ? AND activo = 1";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapProducto(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+
     // =======================
 // 🔥 MÉTODOS PARA TRANSACCIONES (usa la misma Connection)
 // =======================
