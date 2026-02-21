@@ -27,9 +27,7 @@ public class CheckoutServlet extends HttpServlet {
 
     private double calcTotal(Map<Integer, CarritoItem> cart) {
         double total = 0;
-        for (CarritoItem it : cart.values()) {
-            total += it.getSubtotal();
-        }
+        for (CarritoItem it : cart.values()) total += it.getSubtotal();
         return total;
     }
 
@@ -59,6 +57,7 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
+        // 1) Validar dirección
         String direccion = req.getParameter("direccion_envio");
         if (direccion == null || direccion.trim().isEmpty()) {
             req.setAttribute("error", "La dirección de envío es obligatoria.");
@@ -67,22 +66,22 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        // ✅ Si todavía no tienes login, usamos usuario 1 por defecto
+        // 2) Usuario (si no hay login, 1 por defecto)
         int idUsuario = 1;
         Object userIdSession = session.getAttribute("userId");
-        if (userIdSession instanceof Integer) {
-            idUsuario = (Integer) userIdSession;
-        }
+        if (userIdSession instanceof Integer) idUsuario = (Integer) userIdSession;
 
-        // 1) Construir Pedido
+        // 3) Construir Pedido
         Pedido pedido = new Pedido();
         pedido.setEstado("pendiente");
         pedido.setTotal(calcTotal(cart));
         pedido.setDireccion_envio(direccion.trim());
         pedido.setIdUsuario(idUsuario);
 
-        // 2) Construir lineas
+        // 4) Construir líneas + IDs de producto del pedido
         List<LineaPedido> lineas = new ArrayList<>();
+        Set<Integer> idsProductoPedido = new LinkedHashSet<>();
+
         for (CarritoItem it : cart.values()) {
             LineaPedido lp = new LineaPedido();
             lp.setIdProducto(it.getIdProducto());
@@ -90,35 +89,44 @@ public class CheckoutServlet extends HttpServlet {
             lp.setPrecioUnitario(it.getPrecio());
             lp.setSubtotal(it.getSubtotal());
             lineas.add(lp);
+
+            idsProductoPedido.add(it.getIdProducto());
         }
 
-        // 3) Guardar en BD (tu transacción: inserta pedido + lineas + resta stock)
-        PedidoDao pedidoDao = new PedidoDao();
-
+        // 5) Guardar en BD (pedido + lineas + resta stock)
         int idPedidoCreado;
         try {
+            PedidoDao pedidoDao = new PedidoDao();
             idPedidoCreado = pedidoDao.create(pedido, lineas);
+            System.out.println("✅ Pedido creado OK. idPedidoCreado=" + idPedidoCreado);
         } catch (SQLException e) {
             throw new ServletException("Error creando el pedido en BD", e);
         }
 
-        // 4) Vaciar carrito
+        // 6) Vaciar carrito
         cart.clear();
         session.setAttribute("cart", cart);
 
-        // 5) Comprobar stock bajo y notificar (a n8n webhook)
+        // 7) Aviso stock bajo SOLO de productos del pedido (🔥 FIRE & FORGET)
         try {
             ProductoDao productoDao = new ProductoDao();
-            List<Producto> low = productoDao.findLowStock();
-            if (!low.isEmpty()) {
-                StockAlertService.notifyLowStock(low);
+
+            List<Producto> low = productoDao.findLowStockByIds(new ArrayList<>(idsProductoPedido));
+            System.out.println("DEBUG lowStockByIds size=" + (low == null ? 0 : low.size()));
+
+            if (low != null && !low.isEmpty()) {
+                StockAlertService.notifyLowStockFireAndForget(idPedidoCreado, low);
+                System.out.println("✅ Aviso stock bajo enviado a n8n (" + low.size() + ")");
+            } else {
+                System.out.println("ℹ️ No hay stock bajo en productos del pedido, no se envía aviso.");
             }
+
         } catch (Exception e) {
-            // No rompemos el checkout si falla el aviso (solo log)
+            System.out.println("❌ Fallo preparando aviso stock bajo a n8n: " + e.getMessage());
             e.printStackTrace();
         }
 
-        // 6) Mostrar OK
+        // 8) Mostrar OK
         req.setAttribute("pedidoId", idPedidoCreado);
         req.getRequestDispatcher("/pedido_ok.jsp").forward(req, resp);
     }

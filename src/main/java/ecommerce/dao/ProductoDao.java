@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ProductoDao {
 
     public int create(Producto producto) throws SQLException {
@@ -52,8 +51,8 @@ public class ProductoDao {
         String sql = "SELECT * FROM productos WHERE activo = 1 ORDER BY fecha_creacion DESC";
 
         try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 productos.add(mapProducto(rs));
@@ -81,10 +80,9 @@ public class ProductoDao {
         return null;
     }
 
-
     // =======================
-// 🔥 MÉTODOS PARA TRANSACCIONES (usa la misma Connection)
-// =======================
+    // 🔥 MÉTODOS PARA TRANSACCIONES (usa la misma Connection)
+    // =======================
 
     public Producto getById(int id, Connection conn) throws SQLException {
         String sql = "SELECT * FROM productos WHERE id = ? AND activo = 1";
@@ -113,23 +111,55 @@ public class ProductoDao {
         }
     }
 
-
+    // ✅ Stock bajo global (si lo sigues usando en algún sitio)
     public List<Producto> findLowStock() throws SQLException {
 
         List<Producto> low = new ArrayList<>();
         String sql = "SELECT * FROM productos WHERE activo = 1 AND stock <= stock_min ORDER BY stock ASC";
 
         try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                    low.add(mapProducto(rs));
+                low.add(mapProducto(rs));
             }
         }
         return low;
     }
 
+    // ✅ Stock bajo SOLO de los productos de un pedido (LO QUE NECESITAS PARA CHECKOUT)
+    public List<Producto> findLowStockByIds(List<Integer> ids) throws SQLException {
+
+        List<Producto> low = new ArrayList<>();
+        if (ids == null || ids.isEmpty()) return low;
+
+        StringBuilder in = new StringBuilder();
+        for (int i = 0; i < ids.size(); i++) {
+            in.append("?");
+            if (i < ids.size() - 1) in.append(",");
+        }
+
+        String sql = "SELECT * FROM productos " +
+                "WHERE activo = 1 AND stock <= stock_min AND id IN (" + in + ") " +
+                "ORDER BY stock ASC";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < ids.size(); i++) {
+                stmt.setInt(i + 1, ids.get(i));
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    low.add(mapProducto(rs));
+                }
+            }
+        }
+
+        return low;
+    }
 
 
     private Producto mapProducto(ResultSet rs) throws SQLException {
@@ -148,8 +178,7 @@ public class ProductoDao {
             producto.setFecha_creacion(ts.toLocalDateTime());
         }
 
-    producto.setActivo(rs.getBoolean("activo"));
-    return producto;
+        producto.setActivo(rs.getBoolean("activo"));
+        return producto;
     }
-
 }
