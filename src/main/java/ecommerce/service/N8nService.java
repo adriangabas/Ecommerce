@@ -1,31 +1,47 @@
 package ecommerce.service;
 
-
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class N8nService {
 
-    public static void post(String url, String json) throws Exception {
+    /**
+     * FIRE & FORGET real:
+     * - No bloquea el checkout
+     * - No espera respuesta (si tarda, no te rompe nada)
+     * - Timeouts pequeños para no colgar hilos
+     */
+    public static void postFireAndForget(String url, String jsonBody) {
 
-        HttpClient client = HttpClient.newHttpClient();
+        new Thread(() -> {
+            HttpURLConnection con = null;
+            try {
+                URL u = new URL(url);
+                con = (HttpURLConnection) u.openConnection();
+                con.setRequestMethod("POST");
+                con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                con.setDoOutput(true);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(url))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json))
-                .build();
+                // Timeouts pequeños para no “colgar” el hilo si pasa algo raro
+                con.setConnectTimeout(1500);
+                con.setReadTimeout(1500);
 
-        HttpResponse<String> response =
-                client.send(request, HttpResponse.BodyHandlers.ofString());
+                byte[] bytes = jsonBody.getBytes(StandardCharsets.UTF_8);
+                try (OutputStream os = con.getOutputStream()) {
+                    os.write(bytes);
+                    os.flush();
+                }
 
-        // n8n suele devolver 200/201
-        if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new RuntimeException(
-                    "Error n8n (" + response.statusCode() + "): " + response.body()
-            );
-        }
+                int status = con.getResponseCode();
+                System.out.println("✅ n8n POST enviado. HTTP=" + status);
+
+            } catch (Exception e) {
+                System.out.println("⚠️ n8n POST fallo (no rompe checkout): " + e.getMessage());
+            } finally {
+                if (con != null) con.disconnect();
+            }
+        }, "n8n-webhook-thread").start();
     }
 }
