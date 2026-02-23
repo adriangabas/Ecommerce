@@ -63,6 +63,26 @@ Envío de email (SMTP Gmail)
 
 ---
 
+## 📸 Capturas del proyecto
+
+### 🛒 Catálogo de productos
+![Productos](screenshots/productos.png)
+
+---
+
+### 📦 Pedido confirmado
+![Pedido confirmado](screenshots/pedido_confirmado.png)
+
+---
+
+### 🔁 Workflow de automatización (n8n)
+![Workflow n8n](screenshots/workflow_n8n.png)
+
+---
+
+### 📧 Email automático de alerta
+![Email alerta](screenshots/email_stock.png)
+
 ## 🔐 Decisiones técnicas
 
 - Uso de patrón DAO para separar lógica de negocio y acceso a datos.
