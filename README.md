@@ -100,3 +100,23 @@ Envío de email (SMTP Gmail)
 - Tests unitarios.
 - Dockerización completa del backend.
 - Panel de administración.
+---
+
+## ▶️ Cómo ejecutar el proyecto
+
+### Requisitos
+- Java 21+
+- Apache Tomcat 9
+- MariaDB 11.x
+- Docker (para n8n)
+
+### Pasos básicos
+
+1. Clonar el repositorio.
+2. Crear la base de datos en MariaDB.
+3. Configurar credenciales en la clase `Database`.
+4. Desplegar el proyecto como WAR en Tomcat.
+5. Levantar n8n con Docker.
+6. Configurar el webhook y credenciales SMTP.
+
+El sistema quedará disponible en `http://localhost:8080`.
