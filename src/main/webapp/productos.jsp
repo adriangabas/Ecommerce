@@ -65,7 +65,6 @@
     </div>
 </header>
 
-<!-- PRODUCTOS -->
 <section class="products-section" id="products">
     <div class="container">
 
@@ -169,7 +168,6 @@
     </div>
 </section>
 
-<!-- CONTACTO -->
 <section class="contact-section" id="contact">
     <div class="container">
         <div class="section-title">
@@ -225,7 +223,6 @@
     </div>
 </section>
 
-<!-- FOOTER -->
 <footer id="footer">
     <div class="container">
         <div class="copyright">

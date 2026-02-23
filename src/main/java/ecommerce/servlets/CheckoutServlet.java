@@ -57,7 +57,6 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        // 1) Validar dirección
         String direccion = req.getParameter("direccion_envio");
         if (direccion == null || direccion.trim().isEmpty()) {
             req.setAttribute("error", "La dirección de envío es obligatoria.");
@@ -66,19 +65,16 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        // 2) Usuario (si no hay login, 1 por defecto)
         int idUsuario = 1;
         Object userIdSession = session.getAttribute("userId");
         if (userIdSession instanceof Integer) idUsuario = (Integer) userIdSession;
 
-        // 3) Construir Pedido
         Pedido pedido = new Pedido();
         pedido.setEstado("pendiente");
         pedido.setTotal(calcTotal(cart));
         pedido.setDireccion_envio(direccion.trim());
         pedido.setIdUsuario(idUsuario);
 
-        // 4) Construir líneas + IDs de producto del pedido
         List<LineaPedido> lineas = new ArrayList<>();
         Set<Integer> idsProductoPedido = new LinkedHashSet<>();
 
@@ -93,7 +89,6 @@ public class CheckoutServlet extends HttpServlet {
             idsProductoPedido.add(it.getIdProducto());
         }
 
-        // 5) Guardar en BD (pedido + lineas + resta stock)
         int idPedidoCreado;
         try {
             PedidoDao pedidoDao = new PedidoDao();
@@ -103,11 +98,9 @@ public class CheckoutServlet extends HttpServlet {
             throw new ServletException("Error creando el pedido en BD", e);
         }
 
-        // 6) Vaciar carrito
         cart.clear();
         session.setAttribute("cart", cart);
 
-        // 7) Aviso stock bajo SOLO de productos del pedido (🔥 FIRE & FORGET)
         try {
             ProductoDao productoDao = new ProductoDao();
 
@@ -126,7 +119,6 @@ public class CheckoutServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        // 8) Mostrar OK
         req.setAttribute("pedidoId", idPedidoCreado);
         req.getRequestDispatcher("/pedido_ok.jsp").forward(req, resp);
     }

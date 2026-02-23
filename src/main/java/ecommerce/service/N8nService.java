@@ -7,12 +7,6 @@ import java.nio.charset.StandardCharsets;
 
 public class N8nService {
 
-    /**
-     * FIRE & FORGET real:
-     * - No bloquea el checkout
-     * - No espera respuesta (si tarda, no te rompe nada)
-     * - Timeouts pequeños para no colgar hilos
-     */
     public static void postFireAndForget(String url, String jsonBody) {
 
         new Thread(() -> {
@@ -24,7 +18,6 @@ public class N8nService {
                 con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
                 con.setDoOutput(true);
 
-                // Timeouts pequeños para no “colgar” el hilo si pasa algo raro
                 con.setConnectTimeout(1500);
                 con.setReadTimeout(1500);
 

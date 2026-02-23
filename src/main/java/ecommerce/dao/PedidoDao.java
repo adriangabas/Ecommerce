@@ -21,7 +21,7 @@ public class PedidoDao {
             conn = Database.getConnection();
             conn.setAutoCommit(false);
 
-            // 1) Insertar pedido
+
             int idPedidoGenerado;
 
             try (PreparedStatement stmtPedido = conn.prepareStatement(sqlPedido, Statement.RETURN_GENERATED_KEYS)) {
@@ -41,7 +41,6 @@ public class PedidoDao {
                 }
             }
 
-            // 2) Insertar líneas + restar stock
             ProductoDao productoDao = new ProductoDao();
 
             for (LineaPedido lp : lineas) {
@@ -55,7 +54,6 @@ public class PedidoDao {
                     stmtLinea.executeUpdate();
                 }
 
-                // stock actual
                 Producto p = productoDao.getById(lp.getIdProducto(), conn);
                 if (p == null) {
                     throw new SQLException("Producto no encontrado. id=" + lp.getIdProducto());
