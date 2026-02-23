@@ -80,10 +80,6 @@ public class ProductoDao {
         return null;
     }
 
-    // =======================
-    // 🔥 MÉTODOS PARA TRANSACCIONES (usa la misma Connection)
-    // =======================
-
     public Producto getById(int id, Connection conn) throws SQLException {
         String sql = "SELECT * FROM productos WHERE id = ? AND activo = 1";
 

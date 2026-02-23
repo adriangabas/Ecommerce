@@ -53,7 +53,6 @@
             </form>
         </div>
 
-        <!-- RESUMEN -->
         <div class="card">
             <h3 style="margin-top:0;">Resumen</h3>
             <p class="sum">Se creará el pedido y se actualizará el stock automáticamente.</p>

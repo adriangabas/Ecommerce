@@ -25,7 +25,6 @@ public class CarritoServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // ver carrito
         req.getRequestDispatcher("/carrito.jsp").forward(req, resp);
     }
 
