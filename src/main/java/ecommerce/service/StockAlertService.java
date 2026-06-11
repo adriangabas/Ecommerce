@@ -6,8 +6,7 @@ import java.util.List;
 
 public class StockAlertService {
 
-    private static final String N8N_WEBHOOK_URL = "http://127.0.0.1:5678/webhook/stock-bajo";
-
+    private static final String N8N_WEBHOOK_URL = "http://n8n:5678/webhook/stock-bajo";
     public static void notifyLowStockFireAndForget(int pedidoId, List<Producto> lowStockProducts) {
 
         if (lowStockProducts == null || lowStockProducts.isEmpty()) {

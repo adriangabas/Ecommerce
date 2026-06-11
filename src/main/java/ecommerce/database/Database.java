@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class Database {
 
-    private static final String URL = "jdbc:mariadb://localhost:3306/ecommerce";
+    private static final String URL = "jdbc:mariadb://db:3306/ecommerce";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "1234";
 

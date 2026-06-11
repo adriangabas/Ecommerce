@@ -65,7 +65,7 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        int idUsuario = 1;
+        int idUsuario = 2;
         Object userIdSession = session.getAttribute("userId");
         if (userIdSession instanceof Integer) idUsuario = (Integer) userIdSession;
 

@@ -19,7 +19,13 @@ public class ProductosServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         try {
+
             List<Producto> productos = productoDao.getAll();
+
+            System.out.println("=================================");
+            System.out.println("DEBUG PRODUCTOS -> " + productos.size());
+            System.out.println("=================================");
+
             req.setAttribute("productos", productos);
 
             req.getRequestDispatcher("/productos.jsp").forward(req, resp);
